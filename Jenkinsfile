@@ -1,9 +1,33 @@
 pipeline {
-    agent { docker 'python:3.5.1' }
+    agent any
     stages {
-        stage('build') {
+        stage('Non-Parallel Stage') {
             steps {
-                sh 'python --version'
+                echo 'This stage will be executed first.'
+            }
+        }
+        stage('Parallel Stage') {
+            when {
+                branch 'master'
+            }
+            failFast true
+            parallel {
+                stage('Branch A') {
+                    agent {
+                        label "for-branch-a"
+                    }
+                    steps {
+                        echo "On Branch A"
+                    }
+                }
+                stage('Branch B') {
+                    agent {
+                        label "for-branch-b"
+                    }
+                    steps {
+                        echo "On Branch B"
+                    }
+                }
             }
         }
     }
